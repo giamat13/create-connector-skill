@@ -1,0 +1,10 @@
+{
+  "name": "create-connector",
+  "version": "1.0.0",
+  "description": "Skill for building, testing and deploying remote MCP servers (claude.ai custom connectors) in TypeScript on Vercel, with optional inline cards (MCP Apps).",
+  "author": { "name": "GIAMAT13" },
+  "homepage": "https://github.com/GIAMAT13/create-connector-skill",
+  "repository": "https://github.com/GIAMAT13/create-connector-skill",
+  "license": "MIT",
+  "keywords": ["mcp", "model-context-protocol", "claude", "connector", "skill", "vercel"]
+}
