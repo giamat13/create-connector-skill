@@ -44,3 +44,32 @@ If App Check is enforced for Firestore, REST calls without a token are rejected.
 - A refresh token placed in the URL ends up in logs; do not log request URLs.
 - Rules that need `request.time` or server-set fields: use the `REQUEST_TIME` transform, not a client timestamp.
 - After deploying, the user must remove and re-add the connector in claude.ai to refresh the tool list.
+
+## Cards for app data (one generic `page` view)
+
+For an app with many entities (trips, requests, orders) do not write one view per entity. Register one view that renders a generic `kind: "page"` and let each tool build the page as data. Proven with 39 tools and one 76-line view (RTL Hebrew, dark/light via CSS variables).
+
+```ts
+{
+  kind: "page",
+  title: "🧳 Trip name", sub: "short subtitle",
+  chips: ["5 days", "3 open ideas"],                 // small badges under the title
+  rows: [["Currency", "EUR"]],                        // key/value list, empty values are skipped
+  bars: [{ label: "Budget", text: "€800 / €1000", value: 800, max: 1000, over: false }],
+  sections: [{
+    heading: "Days", empty: "No days yet.",
+    items: [{ icon: "📅", title: "Day 1", sub: "Museum · Lunch", badge: "3",
+              call: { name: "get_day", arguments: { tripId, dayNumber: 1 } } }],   // click = load another tool's result
+  }],
+  note: "footer text",
+}
+```
+
+Item fields: `icon`, `check` (checkbox state), `title`, `sub`, `badge`, `url` (external link, http/https only), `call` (in-card navigation or an action such as toggling a checkbox, then the card shows the tool's new result).
+
+Rules:
+- Build one small helper per concept (`tripPage`, `dayPage`, `packingPage`), return `{ content: [text], structuredContent: page }` from every tool, reads and writes alike, so a change shows the updated card.
+- Put navigation in the data: list rows carry `call` to the detail, a detail page has a "back" stack kept in the view.
+- Text for the model stays complete; the card is for people. Never rely on the card alone.
+- Keep the view free of data-dependent `innerHTML`; use `textContent`. Validate `url` before rendering a link.
+- Verify cards by calling each tool through `scripts/test-client.ts` and checking `structuredContent.kind === "page"`; you cannot see the render outside claude.ai, so say so when reporting.
