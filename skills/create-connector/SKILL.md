@@ -11,11 +11,13 @@ Templates live in `templates/` next to this file. Deeper notes are in `reference
 
 - `references/mcp-apps-cards.md` — inline cards: `ui://` resource, postMessage protocol, CSP, clickable lists
 - `references/deploy-vercel.md` — Vercel setup, deploy, re-adding the connector in claude.ai
+- `references/existing-firebase-app.md` — connector for an existing site that uses Firebase: personal link with the user's refresh token, Firestore REST, Cloudflare Workers, App Check. Use it whenever the site already has Firebase Auth/Firestore; `templates/src/lib/session.ts` goes with it
 - `references/gotchas.md` — pitfalls that cost real time (read before debugging)
 
 ## Workflow
 
 1. **Clarify** (ask only what you cannot infer): what data/API, read-only or writes, needs auth or not, wants cards or text only. Default: public data, read-only, no auth, text + cards.
+1b. **Existing site with Firebase?** Read `references/existing-firebase-app.md` first and follow it instead of a service account or a shared secret: the user's own sign-in keeps `firestore.rules` enforced. Also add the "Connect Claude" card to the site.
 2. **Probe every upstream API before writing code.** `curl` each endpoint: status, response shape, date formats, rate limits, timeouts, redirects (a `301` means the URL changed, e.g. `api.frankfurter.dev`, not `.app`). Public SPARQL/search endpoints can be slow: measure time, keep queries simple, filter in code.
 3. **Scaffold** from `templates/` (copy `package.json`, `tsconfig.json`, `vercel.json`, `api/`, `src/`, `scripts/`), rename `my-connector`, `npm install`.
 4. **Write tools** in `src/server.ts` (one `registerTool` each). Rules below.
